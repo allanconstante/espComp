@@ -20,7 +20,7 @@
 
 #define TAG "Wifi"
 
-#define WIFI_SSID "Allan"           // Nome da rede.
+#define WIFI_SSID "Teste"           // Nome da rede.
 #define WIFI_PASS "12345678"        // Senha do Wifi.
 #define WIFI_MAXIMUM_RETRY 10       // Numero de tentativas de conexão.
 
