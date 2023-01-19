@@ -30,7 +30,7 @@ static esp_err_t mqttEvent(esp_mqtt_event_handle_t event)
     {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI("MQTT","MQTT conectado");
-            teste = esp_mqtt_client_publish(client, "teste", "30.00", 0, 1, 0);
+            teste = esp_mqtt_client_publish(client, "allanconstante/Feeds/Longhi_Temperatura", "30.00", 0, 1, 0);
             ESP_LOGI("MQTT","ID = %d", teste);
             break;
         
