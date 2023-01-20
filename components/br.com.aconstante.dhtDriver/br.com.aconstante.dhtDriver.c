@@ -20,7 +20,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#include "br.com.aconstante.dhtDriver.h"
+#include "include/br.com.aconstante.dhtDriver.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -38,6 +38,7 @@
 static acDriver dhtDriver;
 static ptrFuncDrv dht_functions[DHT_END];
 static uint32_t bufferData = 0;
+static uint64_t cont = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 char initDht(void *parameters);
@@ -57,8 +58,8 @@ char getTemperature(void *parameters)
   readSensor();
   
   rTemp=bufferData;
-  if(modelGlobal==DHT11) *temperature=((rTemp>>8)+((float)(rTemp&0x00FF)/10));
-  else if(modelGlobal==DHT22)
+  if(0) *temperature=((rTemp>>8)+((float)(rTemp&0x00FF)/10));
+  else if(1)
   {
     if(rTemp & 0x8000) *temperature=(-1)*((float)(rTemp&0x7FFF)/10);
     else *temperature=(float)(rTemp&0x7FFF)/10;
@@ -74,8 +75,8 @@ char getHumidity(void *parameters)
   readSensor();
 
   rHumi=(bufferData >> 16);
-  if(modelGlobal==DHT11) *humidity=((rHumi>>8)+((float)(rHumi&0x00FF)/10));
-  else if(modelGlobal==DHT22) *humidity=(float)rHumi/10;
+  if(0) *humidity=((rHumi>>8)+((float)(rHumi&0x00FF)/10));
+  else if(1) *humidity=(float)rHumi/10;
   return 1;
 }
 
@@ -128,30 +129,30 @@ void readSensor(void)
   uint64_t startTime = 0;
   uint8_t bufferChecksum = 0;
 
-  gpio_set_direction(pinGobal, GPIO_MODE_OUTPUT);
-  gpio_set_level(pinGobal, 0);
-  timer_set_counter_value(groupGlobal, timerGlobal, 0);
-  timer_start(groupGlobal, timerGlobal);
+  gpio_set_direction(PIN, GPIO_MODE_OUTPUT);
+  gpio_set_level(PIN, 0);
+  timer_set_counter_value(GRP, TIM, 0);
+  timer_start(GRP, TIM);
     
-  if(modelGlobal == DHT11) startTime = 18*MILLI;
-  else if(modelGlobal == DHT22) startTime = 2*MILLI;
+  if(0) startTime = 18*MILLI;
+  else if(1) startTime = 2*MILLI;
 
   while(state)
   {
-    timer_get_counter_value(groupGlobal, timerGlobal, &cont);
+    timer_get_counter_value(GRP, TIM, &cont);
     if(cont > 30*MILLI)
     {
-      tate = 0;
-      timer_pause(groupGlobal, timerGlobal);
+      state = 0;
+      timer_pause(GRP, TIM);
       ESP_LOGE("DHT", "Timeout");
     }
     else if(state == 1)
     {
       if(cont > startTime)
       {
-        gpio_set_level(pinGobal, 1);
-        timer_get_counter_value(groupGlobal, timerGlobal, &auxCont);
-        gpio_set_direction(pinGobal, GPIO_MODE_INPUT);
+        gpio_set_level(PIN, 1);
+        timer_get_counter_value(GRP, TIM, &auxCont);
+        gpio_set_direction(PIN, GPIO_MODE_INPUT);
         state = 2;
       }
     }
@@ -160,20 +161,20 @@ void readSensor(void)
       uint8_t aux01 = ((cont-auxCont)/MICRO) > (200*MICRO);
       if(aux01)
       {
-        if(!gpio_get_level(pinGobal)) state = 3;
+        if(!gpio_get_level(PIN)) state = 3;
       }
     }
     else if(state == 3)
     {
-      if(gpio_get_level(pinGobal))
+      if(gpio_get_level(PIN))
       {
-        timer_get_counter_value(groupGlobal, timerGlobal, &auxCont);
+        timer_get_counter_value(GRP, TIM, &auxCont);
         state = 4;
       }
     }
     else if(state == 4)
     {
-      if(!gpio_get_level(pinGobal))
+      if(!gpio_get_level(PIN))
       {
         uint8_t aux01 = ((cont-auxCont)/MICRO) > (35*MICRO);
         if(nBit < 32)
@@ -191,7 +192,7 @@ void readSensor(void)
         if(nBit == 40)
         {
           state = 0;
-          timer_pause(groupGlobal, timerGlobal);
+          timer_pause(GRP, TIM);
           if(check(bufferData, bufferChecksum)) ESP_LOGI("DHT", "Read Success");
           else ESP_LOGE("DHT", "Reading error");
         }

@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
-  * @file           : dd_types.h
-  * @brief          : Device Drivers Types
+  * @file           : ctrdrv.h
+  * @brief          : Driver controller
   ******************************************************************************
   * @attention
   *
@@ -10,24 +10,32 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "dd_types.h"
+#include "../../br.com.aconstante.dhtDriver/include/br.com.aconstante.dhtDriver.h"
+//....
+
+/* Exported Defines ----------------------------------------------------------*/
+#define QNTD_DRV 20
 
 /* Exported types ------------------------------------------------------------*/
-typedef char (*ptrFuncDrv)(void *parameters);
-struct driver_type
-{
-    int drv_id;
-    ptrFuncDrv *drv_func;
-    ptrFuncDrv  drv_init;
-};
-typedef struct driver_type acDriver;
-typedef acDriver* (*ptrgetDrv)(void);
 
 /* Exported enums ------------------------------------------------------------*/
+enum
+{
+    DRV_DHT,
+    DRV_END
+};
 
 /* Exported constants --------------------------------------------------------*/
 
 /* Exported macro ------------------------------------------------------------*/
 
-/* Exported functions prototypes ---------------------------------------------*/
+/* Exported variables --------------------------------------------------------*/
+static ptrgetDrv drvInitVect[DRV_END] = 
+{
+  getDhtDriver
+};
 
-/* Exported Defines ----------------------------------------------------------*/
+/* Exported functions prototypes ---------------------------------------------*/
+char initDriver(char newDriver);
+char callDriver(int drv_init, char func_id, void *parameters);

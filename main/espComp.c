@@ -15,13 +15,13 @@
 
 #include "mqtt_client.h"
 
-
 float temp;
 float umd;
 
 void initDevices(void);
-void mqttStart(void);
+//void mqttStart(void);
 
+/*
 static esp_err_t mqttEvent(esp_mqtt_event_handle_t event)
 {
     esp_mqtt_client_handle_t client = event->client;
@@ -45,14 +45,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     ESP_LOGI("MQTT", "Base = %s ID = %d", base, event_id);
     mqttEvent(event_data);
 }
+*/
 
 void app_main(void)
 {
     initDevices();
     wifiConnect();
     provSensor(TIMER_GROUP_0, TIMER_0, GPIO_NUM_15, DHT22);
-    vTaskDelay(pdMS_TO_TICKS(10000));
-    mqttStart();
+    //vTaskDelay(pdMS_TO_TICKS(10000));
+    //mqttStart();
 
     while (1)
     {      
@@ -69,6 +70,7 @@ void initDevices(void)
      wifiStart();
 }
 
+/*
 void mqttStart(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = 
@@ -83,3 +85,4 @@ void mqttStart(void)
     esp_mqtt_client_register_event(client,ESP_EVENT_ANY_ID, mqtt_event_handler, client);
     esp_mqtt_client_start(client);
 }
+*/
