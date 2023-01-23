@@ -1,4 +1,5 @@
 #include "ac_driver_dht.h"
+#include "sdkconfig.h"
 
 #define DIVIDER     80
 #define SECONDS     (TIMER_BASE_CLK/DIVIDER)
@@ -6,6 +7,20 @@
 #define MICRO       (SECONDS/(1000*1000))
 
 #define TAG "DHT Driver"
+
+#ifdef CONFIG_GROUP_0_TIMER_0
+#define GRP TIMER_GROUP_0
+#define TIM TIMER_0
+#elif CONFIG_GROUP_0_TIMER_1
+#define GRP TIMER_GROUP_0
+#define TIM TIMER_1
+#elif CONFIG_GROUP_1_TIMER_0
+#define GRP TIMER_GROUP_1
+#define TIM TIMER_0
+#elif CONFIG_GROUP_1_TIMER_1
+#define GRP TIMER_GROUP_1
+#define TIM TIMER_1
+#endif
 
 static ac_driver_t dht_driver;
 static ac_driver_function_pointer_t dht_functions[DHT_END];
@@ -26,15 +41,14 @@ static char get_temperature(void *parameters)
   float *temperature = (float*) parameters;
   uint16_t rTemp;
 
-  readSensor();
-  
+  readSensor();  
   rTemp=bufferData;
-  if(0) *temperature=((rTemp>>8)+((float)(rTemp&0x00FF)/10));
-  else if(1)
-  {
-    if(rTemp & 0x8000) *temperature=(-1)*((float)(rTemp&0x7FFF)/10);
-    else *temperature=(float)(rTemp&0x7FFF)/10;
-  }
+  #ifdef CONFIG_DHT11
+  *temperature=((rTemp>>8)+((float)(rTemp&0x00FF)/10));
+  #elif CONFIG_DHT22
+  if(rTemp & 0x8000) *temperature=(-1)*((float)(rTemp&0x7FFF)/10);
+  else *temperature=(float)(rTemp&0x7FFF)/10;
+  #endif
   return 1;
 }
 
@@ -44,10 +58,12 @@ static char get_humidity(void *parameters)
   uint16_t rHumi;
 
   readSensor();
-
   rHumi = (bufferData >> 16);
-  if (0) *humidity = ((rHumi>>8) + ((float) (rHumi & 0x00FF) / 10));
-  else if (1) *humidity = (float) rHumi / 10;
+  #ifdef CONFIG_DHT11
+  *humidity = ((rHumi>>8) + ((float) (rHumi & 0x00FF) / 10));
+  #elif CONFIG_DHT22
+  *humidity = (float) rHumi / 10;
+  #endif
   return 1;
 }
 
@@ -72,11 +88,11 @@ ac_driver_t* ac_get_dht_driver(void)
 
 static void initPort(void)
 {
-    gpio_pad_select_gpio(PIN);
-    gpio_set_direction(PIN, GPIO_MODE_INPUT_OUTPUT);
-    gpio_pulldown_dis(PIN);
-    gpio_pullup_dis(PIN);
-    gpio_set_level(PIN, 1);
+    gpio_pad_select_gpio(CONFIG_GPIO_NUMBER);
+    gpio_set_direction(CONFIG_GPIO_NUMBER, GPIO_MODE_INPUT_OUTPUT);
+    gpio_pulldown_dis(CONFIG_GPIO_NUMBER);
+    gpio_pullup_dis(CONFIG_GPIO_NUMBER);
+    gpio_set_level(CONFIG_GPIO_NUMBER, 1);
 }
 
 static void initTimer(void)
@@ -102,8 +118,8 @@ static void readSensor(void)
   uint64_t startTime = 0;
   uint8_t bufferChecksum = 0;
 
-  gpio_set_direction(PIN, GPIO_MODE_OUTPUT);
-  gpio_set_level(PIN, 0);
+  gpio_set_direction(CONFIG_GPIO_NUMBER, GPIO_MODE_OUTPUT);
+  gpio_set_level(CONFIG_GPIO_NUMBER, 0);
   timer_set_counter_value(GRP, TIM, 0);
   timer_start(GRP, TIM);
     
@@ -119,9 +135,9 @@ static void readSensor(void)
       ESP_LOGE("DHT", "Timeout");
     } else if (state == 1) {
       if(cont > startTime) {
-        gpio_set_level(PIN, 1);
+        gpio_set_level(CONFIG_GPIO_NUMBER, 1);
         timer_get_counter_value(GRP, TIM, &auxCont);
-        gpio_set_direction(PIN, GPIO_MODE_INPUT);
+        gpio_set_direction(CONFIG_GPIO_NUMBER, GPIO_MODE_INPUT);
         state = 2;
       }
     }
@@ -130,12 +146,12 @@ static void readSensor(void)
       uint8_t aux01 = ((cont-auxCont)/MICRO) > (200*MICRO);
       if(aux01)
       {
-        if(!gpio_get_level(PIN)) state = 3;
+        if(!gpio_get_level(CONFIG_GPIO_NUMBER)) state = 3;
       }
     }
     else if(state == 3)
     {
-      if(gpio_get_level(PIN))
+      if(gpio_get_level(CONFIG_GPIO_NUMBER))
       {
         timer_get_counter_value(GRP, TIM, &auxCont);
         state = 4;
@@ -143,7 +159,7 @@ static void readSensor(void)
     }
     else if(state == 4)
     {
-      if(!gpio_get_level(PIN))
+      if(!gpio_get_level(CONFIG_GPIO_NUMBER))
       {
         uint8_t aux01 = ((cont-auxCont)/MICRO) > (35*MICRO);
         if(nBit < 32)

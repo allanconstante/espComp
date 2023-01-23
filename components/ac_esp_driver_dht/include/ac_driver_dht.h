@@ -19,10 +19,6 @@ typedef enum
 
 ac_driver_t* ac_get_dht_driver(void);
 
-#define GRP TIMER_GROUP_0
-#define TIM TIMER_0
-#define PIN GPIO_NUM_15
-
 #ifdef __cplusplus
 }
 #endif
