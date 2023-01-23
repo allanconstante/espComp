@@ -1,41 +1,29 @@
-/**
-  ******************************************************************************
-  * @file           : ctrdrv.h
-  * @brief          : Driver controller
-  ******************************************************************************
-  * @attention
-  *
-  *
-  ******************************************************************************
-  */
+#pragma once
 
-/* Includes ------------------------------------------------------------------*/
-#include "dd_types.h"
-#include "../../br.com.aconstante.dhtDriver/include/br.com.aconstante.dhtDriver.h"
-//....
+#include <stdint.h>
+#include "ac_driver_types.h"
+#include "../../ac_esp_driver_dht/include/ac_driver_dht.h"
 
-/* Exported Defines ----------------------------------------------------------*/
-#define QNTD_DRV 20
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* Exported types ------------------------------------------------------------*/
+#define MAXIMUM_NUMBER_DRIVERS 6
 
-/* Exported enums ------------------------------------------------------------*/
-enum
+typedef enum
 {
-    DRV_DHT,
-    DRV_END
+    DRIVER_DHT,
+    DRIVER_END
+} ac_driver_list_t;
+
+static ac_get_driver_pointer_t drivers_initialization_vector[DRIVER_END] = 
+{
+  ac_get_dht_driver
 };
 
-/* Exported constants --------------------------------------------------------*/
+char ac_initialize_driver(int new_driver);
+char ac_call_driver(int driver_id, int function_id, void *parameters);
 
-/* Exported macro ------------------------------------------------------------*/
-
-/* Exported variables --------------------------------------------------------*/
-static ptrgetDrv drvInitVect[DRV_END] = 
-{
-  getDhtDriver
-};
-
-/* Exported functions prototypes ---------------------------------------------*/
-char initDriver(char newDriver);
-char callDriver(int drv_init, char func_id, void *parameters);
+#ifdef __cplusplus
+}
+#endif

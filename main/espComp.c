@@ -1,5 +1,3 @@
-
-#include "br.com.aconstante.dht.h"
 #include "br.com.aconstante.wifi.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
@@ -12,8 +10,12 @@
 #include "freertos/event_groups.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "br.com.aconstante.dht.h"
 
 #include "mqtt_client.h"
+
+#include "ac_driver_controller.h"
+#include "ac_driver_dht.h"
 
 float temp;
 float umd;
@@ -49,17 +51,20 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 void app_main(void)
 {
-    initDevices();
-    wifiConnect();
-    provSensor(TIMER_GROUP_0, TIMER_0, GPIO_NUM_15, DHT22);
+    //initDevices();
+    //wifiConnect();
+    //provSensor(TIMER_GROUP_0, TIMER_0, GPIO_NUM_15, DHT22);
     //vTaskDelay(pdMS_TO_TICKS(10000));
     //mqttStart();
+    ac_initialize_driver(DRIVER_DHT);
 
     while (1)
     {      
         vTaskDelay(pdMS_TO_TICKS(5000));
-        getSensorData(&temp, &umd);
+        ac_call_driver(DRIVER_DHT, DHT_TEMPERATURE, (void*) &temp);
         printf("Temperatura:    %.2f°C\r\n", temp);
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        ac_call_driver(DRIVER_DHT, DHT_HUMIDITY, (void*) &umd);
         printf("Umidade:        %.0f%%\r\n", umd);
     }
 }
