@@ -1,4 +1,4 @@
-menu "DHT driver configurations"
+menu "Wifi driver configurations"
 
         choice MODEL
             prompt "Sensor model"
@@ -35,6 +35,5 @@ menu "DHT driver configurations"
         help
             GPIO number (IOxx) for communication with the sensor.
             Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used.
-    
 
 endmenu

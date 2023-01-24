@@ -1,4 +1,4 @@
-#include "br.com.aconstante.wifi.h"
+#include "ac_driver_wifi.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "driver/gpio.h"
@@ -10,12 +10,10 @@
 #include "freertos/event_groups.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "br.com.aconstante.dht.h"
 
 #include "mqtt_client.h"
 
 #include "ac_driver_controller.h"
-#include "ac_driver_dht.h"
 
 float temp;
 float umd;
@@ -61,10 +59,10 @@ void app_main(void)
     while (1)
     {      
         vTaskDelay(pdMS_TO_TICKS(5000));
-        ac_call_driver(DRIVER_DHT, DHT_TEMPERATURE, (void*) &temp);
+        ac_call_driver(DRIVER_DHT, GET_TEMPERATURE, (void*) &temp);
         printf("Temperatura:    %.2f°C\r\n", temp);
         vTaskDelay(pdMS_TO_TICKS(5000));
-        ac_call_driver(DRIVER_DHT, DHT_HUMIDITY, (void*) &umd);
+        ac_call_driver(DRIVER_DHT, GET_HUMIDITY, (void*) &umd);
         printf("Umidade:        %.0f%%\r\n", umd);
     }
 }
