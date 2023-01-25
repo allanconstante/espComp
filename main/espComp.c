@@ -1,4 +1,4 @@
-#include "ac_driver_wifi.h"
+//#include "ac_driver_wifi.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "driver/gpio.h"
@@ -15,8 +15,8 @@
 
 #include "ac_driver_controller.h"
 
-float temp;
-float umd;
+float temp = 0;
+float umd = 0;
 
 void initDevices(void);
 //void mqttStart(void);
@@ -54,7 +54,7 @@ void app_main(void)
     //provSensor(TIMER_GROUP_0, TIMER_0, GPIO_NUM_15, DHT22);
     //vTaskDelay(pdMS_TO_TICKS(10000));
     //mqttStart();
-    ac_initialize_driver(DRIVER_DHT);
+    //ac_initialize_driver(DRIVER_DHT);
 
     while (1)
     {      
