@@ -1,24 +1,8 @@
-//#include "ac_driver_wifi.h"
-#include "esp_log.h"
-#include "esp_wifi.h"
-#include "driver/gpio.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "esp_log.h"
-#include "nvs_flash.h"
-
-#include "mqtt_client.h"
-
-#include "ac_driver_controller.h"
+#include "espComp.h"
 
 float temp = 0;
 float umd = 0;
 
-void initDevices(void);
 //void mqttStart(void);
 
 /*
@@ -49,12 +33,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 void app_main(void)
 {
-    //initDevices();
-    //wifiConnect();
-    //provSensor(TIMER_GROUP_0, TIMER_0, GPIO_NUM_15, DHT22);
+    nvs_flash_init();
+    initDevices();
     //vTaskDelay(pdMS_TO_TICKS(10000));
     //mqttStart();
-    //ac_initialize_driver(DRIVER_DHT);
+    ac_initialize_driver(DRIVER_DHT);
+    ac_initialize_driver(DRIVER_WIFI);
+    ac_call_driver(DRIVER_WIFI, CONNECT, NULL);
 
     while (1)
     {      
@@ -65,12 +50,6 @@ void app_main(void)
         ac_call_driver(DRIVER_DHT, GET_HUMIDITY, (void*) &umd);
         printf("Umidade:        %.0f%%\r\n", umd);
     }
-}
-
-void initDevices(void)
-{
-     nvs_flash_init();
-     wifiStart();
 }
 
 /*

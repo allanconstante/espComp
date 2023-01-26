@@ -1,16 +1,4 @@
-/**
-  ******************************************************************************
-  * @file           : wifi.h
-  * @brief          : Header for wifi.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
-  * @attention
-  *
-  *
-  ******************************************************************************
-  */
-
-/* Includes ------------------------------------------------------------------*/
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,28 +13,22 @@
 #include "esp_log.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
+#include "sdkconfig.h"
+#include "../../ac_driver_controller/include/ac_driver_types.h"
 
-/* Exported types ------------------------------------------------------------*/
-// -------------------------
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* Exported constants --------------------------------------------------------*/
-// -------------------------
+typedef enum
+{
+    CONNECT,
+    DISCONNECT,
+    END_WIFI
+} ac_wifi_driver_functions_list_t;
 
-/* Exported macro ------------------------------------------------------------*/
-// -------------------------
+ac_driver_t* ac_get_wifi_driver(void);
 
-/* Exported functions prototypes ---------------------------------------------*/
-
-void wifiStart(void);
-void wifiConnect(void);
-void wifiDisconnect(void);
-wifi_ap_record_t* wifiScan(void);
-
-char wifiStatus(void);
-
-/* Exported Defines ----------------------------------------------------------*/
-
-#define READY           1
-#define CONNECTED       2
-#define DISCONNECTED    3
-#define FAIL            4
+#ifdef __cplusplus
+}
+#endif

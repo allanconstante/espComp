@@ -137,15 +137,25 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 
 #
-# DHT configuration
+# DHT sensor configuration
 #
-# CONFIG_DHT_DRIVER_ENABLE is not set
-# end of DHT configuration
+CONFIG_DHT_DRIVER_ENABLE=y
+CONFIG_GPIO_NUMBER=18
+# CONFIG_DHT11 is not set
+CONFIG_DHT22=y
+CONFIG_GROUP_0_TIMER_0=y
+# CONFIG_GROUP_0_TIMER_1 is not set
+# CONFIG_GROUP_1_TIMER_0 is not set
+# CONFIG_GROUP_1_TIMER_1 is not set
+# end of DHT sensor configuration
 
 #
 # Wifi configuration
 #
-# CONFIG_WIFI_DRIVER_ENABLE is not set
+CONFIG_WIFI_DRIVER_ENABLE=y
+CONFIG_WIFI_SSID="Teste"
+CONFIG_WIFI_PASSWORD="12345678"
+CONFIG_MAXIMUM_RETRY=10
 # end of Wifi configuration
 # end of Driver configurations
 

@@ -1,9 +1,18 @@
 #pragma once
 
 #include <stdint.h>
+#include "sdkconfig.h"
 #include "ac_driver_types.h"
 // Inserir includes dos drivers ---------------------------------------------------------------------------------------
+
+#ifdef CONFIG_DHT_DRIVER_ENABLE
 #include "../../ac_esp_driver_dht/include/ac_driver_dht.h"
+#endif
+
+#ifdef CONFIG_WIFI_DRIVER_ENABLE
+#include "../../ac_esp_driver_wifi/include/ac_driver_wifi.h"
+#endif
+
 // --------------------------------------------------------------------------------------------------------------------
 
 #ifdef __cplusplus
@@ -15,7 +24,15 @@ extern "C" {
 typedef enum
 {
     // Inserir ID dos drivers -----------------------------------------------------------------------------------------
+    
+    #ifdef CONFIG_DHT_DRIVER_ENABLE
     DRIVER_DHT,
+    #endif
+
+    #ifdef CONFIG_WIFI_DRIVER_ENABLE
+    DRIVER_WIFI,
+    #endif
+
     // ----------------------------------------------------------------------------------------------------------------
     END
 } ac_driver_list_t;
@@ -23,7 +40,17 @@ typedef enum
 static ac_get_driver_pointer_t drivers_initialization_vector[END] = 
 {
   // Inserir função de inicialização dos drivers ----------------------------------------------------------------------
-  ac_get_dht_driver
+  
+  #if defined  CONFIG_DHT_DRIVER_ENABLE && CONFIG_WIFI_DRIVER_ENABLE
+  ac_get_dht_driver,
+  #elif CONFIG_DHT_DRIVER_ENABLE
+  c_get_dht_driver
+  #endif
+
+  #ifdef CONFIG_WIFI_DRIVER_ENABLE
+  ac_get_wifi_driver
+  #endif
+
   // ------------------------------------------------------------------------------------------------------------------
 };
 
