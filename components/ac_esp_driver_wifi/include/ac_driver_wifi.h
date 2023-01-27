@@ -15,6 +15,7 @@
 #include "lwip/sys.h"
 #include "sdkconfig.h"
 #include "../../ac_driver_controller/include/ac_driver_types.h"
+#include "ac_driver_wifi_interrupt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,8 @@ typedef enum
 {
     CONNECT,
     DISCONNECT,
+    SSID,
+    PASSWORD,
     END_WIFI
 } ac_wifi_driver_functions_list_t;
 

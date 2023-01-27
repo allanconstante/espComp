@@ -133,13 +133,8 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Driver configurations
-#
-
-#
 # DHT sensor configuration
 #
-CONFIG_DHT_DRIVER_ENABLE=y
 CONFIG_GPIO_NUMBER=18
 # CONFIG_DHT11 is not set
 CONFIG_DHT22=y
@@ -152,12 +147,10 @@ CONFIG_GROUP_0_TIMER_0=y
 #
 # Wifi configuration
 #
-CONFIG_WIFI_DRIVER_ENABLE=y
 CONFIG_WIFI_SSID="Teste"
 CONFIG_WIFI_PASSWORD="12345678"
-CONFIG_MAXIMUM_RETRY=10
+CONFIG_MAXIMUM_RETRY=6
 # end of Wifi configuration
-# end of Driver configurations
 
 #
 # Compiler options

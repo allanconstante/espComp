@@ -51,6 +51,18 @@ static char disconnect_wifi(void *parameters)
     return 1;
 }
 
+static char ssid_wifi(void *parameters)
+{
+    
+    return 1;
+}
+
+static char password_wifi(void *parameters)
+{
+
+    return 1;
+}
+
 static char initialize_wifi_driver(void *parameters)
 {
     start_wifi();
@@ -64,6 +76,8 @@ ac_driver_t* ac_get_wifi_driver(void)
   wifi_driver.driver_initialization = initialize_wifi_driver;
   wifi_functions[CONNECT] = connect_wifi;
   wifi_functions[DISCONNECT] = disconnect_wifi;
+  wifi_functions[SSID] = ssid_wifi;
+  wifi_functions[PASSWORD] = password_wifi;
   wifi_driver.driver_function = &wifi_functions[0]; //Estudar.
   ESP_LOGI(TAG, "Get driver");
   return &wifi_driver;

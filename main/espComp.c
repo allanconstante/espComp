@@ -34,8 +34,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 void app_main(void)
 {
     nvs_flash_init();
-    initDevices();
-    //vTaskDelay(pdMS_TO_TICKS(10000));
     //mqttStart();
     ac_initialize_driver(DRIVER_DHT);
     ac_initialize_driver(DRIVER_WIFI);
