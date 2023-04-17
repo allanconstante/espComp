@@ -22,18 +22,18 @@ static void writeRegister( i2c_port_t i2c_port, uint8_t address, uint8_t val );
 
 static char get_raw_data(void *parameters)
 {
-
+    return 1;
 }
 
 static char get_temperature(void *parameters)
 {
-
+    return 1;
 }
 
 static char initialize_max30100_driver(void *parameters)
 {
     initI2C();
-    initMax30100(I2C_PORT);
+    initMax30100();
     max30100_driver.driver_id = (int) parameters;
     ESP_LOGI(TAG, "Driver inicializado");
     return 1;
@@ -43,7 +43,7 @@ ac_driver_t* ac_get_max30100_driver(void)
 {
   max30100_driver.driver_initialization = initialize_max30100_driver;
   max30100_functions[GET_RAW_DATA] = get_raw_data;
-  max30100_functions[GET_TEMPERATURE] = get_temperature;
+  max30100_functions[GET_TEMPERATURE_MAX30100] = get_temperature;
   max30100_driver.driver_function = &max30100_functions[0]; //Estudar.
   ESP_LOGI(TAG, "Get driver");
   return &max30100_driver;

@@ -6,6 +6,7 @@
 // Inserir includes dos drivers ---------------------------------------------------------------------------------------
 #include "../../ac_esp_driver_dht/include/ac_driver_dht.h"
 #include "../../ac_esp_driver_wifi/include/ac_driver_wifi.h"
+#include "../../ac_esp_driver_max30100/include/ac_driver_max30100.h"
 // --------------------------------------------------------------------------------------------------------------------
 
 #ifdef __cplusplus
@@ -19,6 +20,7 @@ typedef enum
     // Inserir ID dos drivers -----------------------------------------------------------------------------------------
     DRIVER_DHT,
     DRIVER_WIFI,
+    DRIVER_MAX30100,
     // ----------------------------------------------------------------------------------------------------------------
     END
 } ac_driver_list_t;
@@ -27,7 +29,8 @@ static ac_get_driver_pointer_t drivers_initialization_vector[END] =
 {
   // Inserir função de inicialização dos drivers ----------------------------------------------------------------------
   ac_get_dht_driver,
-  ac_get_wifi_driver
+  ac_get_wifi_driver,
+  ac_get_max30100_driver
   // ------------------------------------------------------------------------------------------------------------------
 };
 
