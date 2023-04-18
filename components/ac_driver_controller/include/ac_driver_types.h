@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 typedef char (*ac_driver_function_pointer_t)(void* arg);
+typedef void (*ac_driver_interrupt_function_pointer_t)(void* arg);
 struct ac_driver_t
 {
     int driver_id;
