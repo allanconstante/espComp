@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "driver/gpio.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
 #include "../../ac_driver_controller/include/ac_driver_types.h"
