@@ -27,6 +27,20 @@ static char get_raw_data(void *parameters)
 
 static char get_temperature(void *parameters)
 {
+    uint8_t current;
+    readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
+    printf(": %x\n", current);
+    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current | (1<<3)) );
+    printf(": %x\n", (current | (1<<3)));
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    
+    int8_t temp;
+    readRegister(I2C_PORT, TEMP_INTEGER, (uint8_t*)&temp, 1);
+
+    float temp_fraction;
+    readRegister( I2C_PORT, TEMP_FRACTION, (uint8_t*)&temp_fraction, 1);
+    temp_fraction *= 0.0625;
+    printf("Temperatura = %f\n", (float)temp+temp_fraction);
     return 1;
 }
 
@@ -67,9 +81,14 @@ static void initMax30100(void)
 {
     uint8_t current;
 
+    //Teste com a temperatura ------
+    readRegister( I2C_PORT, INTERRUPT_ENABLE, &current, 1 );
+    writeRegister( I2C_PORT, INTERRUPT_ENABLE, current | (0<<6) );
+    //------------------------------
+
     // Set mode ------------
     readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
-    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current & 0xF8) | SPO2_HR_MODE );
+    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current & 0xF8) | HR_MODE );
     // ---------------------
 
     // Set sampling rate ---

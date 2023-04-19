@@ -1,68 +1,50 @@
 #include "espComp.h"
 
-float temp = 0;
-float umd = 0;
+uint8_t teste = 0;
+uint8_t cont = 0;
 
-//void mqttStart(void);
-
-/*
-static esp_err_t mqttEvent(esp_mqtt_event_handle_t event)
-{
-    esp_mqtt_client_handle_t client = event->client;
-    int teste;
-    switch (event->event_id)
-    {
-        case MQTT_EVENT_CONNECTED:
-            ESP_LOGI("MQTT","MQTT conectado");
-            teste = esp_mqtt_client_publish(client, "allanconstante/Feeds/Longhi_Temperatura", "30.00", 0, 1, 0);
-            ESP_LOGI("MQTT","ID = %d", teste);
-            break;
-        
-        default:
-            break;
-    }
-    return ESP_OK;
-}
-
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
-{
-    ESP_LOGI("MQTT", "Base = %s ID = %d", base, event_id);
-    mqttEvent(event_data);
-}
-*/
+static void funcTeste(void *args);
 
 void app_main(void)
 {
-    nvs_flash_init();
-    //mqttStart();
-    ac_initialize_driver(DRIVER_DHT);
-    ac_initialize_driver(DRIVER_WIFI);
-    ac_call_driver(DRIVER_WIFI, CONNECT, NULL);
+    //ac_initialize_driver(DRIVER_DHT);
+    //ac_initialize_driver(DRIVER_WIFI);
+    //ac_call_driver(DRIVER_WIFI, CONNECT, NULL);
+    ac_initialize_driver(DRIVER_MAX30100);
+    ac_initialize_driver(DRIVER_MAX30100_INTERRUPT);
+    ac_call_driver(DRIVER_MAX30100_INTERRUPT, SET_MAX30100_INTERRUPT, funcTeste);
+    ac_call_driver(DRIVER_MAX30100_INTERRUPT, ENABLE_MAX30100_INTERRUPT, NULL);
 
     while (1)
-    {      
+    {
+        if(teste == 0) {
+            printf("Nadica de nada até agora.\n");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            ++cont;
+        }
+        else {
+            teste = 0;
+            printf("Feitoria!!! Tu é o cara meu!!!\n");        
+        }
+
+        if(cont == 5) {
+            ac_call_driver(DRIVER_MAX30100, GET_TEMPERATURE_MAX30100, NULL);
+            printf("Eai!!!\n");
+            cont = 0;
+        }
+
+        /*   
         vTaskDelay(pdMS_TO_TICKS(5000));
         ac_call_driver(DRIVER_DHT, GET_TEMPERATURE, (void*) &temp);
         printf("Temperatura:    %.2f°C\r\n", temp);
         vTaskDelay(pdMS_TO_TICKS(5000));
         ac_call_driver(DRIVER_DHT, GET_HUMIDITY, (void*) &umd);
         printf("Umidade:        %.0f%%\r\n", umd);
+        */
     }
 }
 
-/*
-void mqttStart(void)
+static void funcTeste(void *args)
 {
-    esp_mqtt_client_config_t mqtt_cfg = 
-    {
-        .host = "io.adafruit.com",
-        .port = 1883,
-        .username = "teste",
-        .password = "teste",
-
-    };
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(client,ESP_EVENT_ANY_ID, mqtt_event_handler, client);
-    esp_mqtt_client_start(client);
+    teste = 1;
 }
-*/
