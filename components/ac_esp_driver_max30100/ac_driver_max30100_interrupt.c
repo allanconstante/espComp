@@ -57,9 +57,10 @@ static void initPort(void)
     gpio_pad_select_gpio(PORT);
     gpio_set_direction(PORT, GPIO_MODE_INPUT);
     gpio_pulldown_dis(PORT);
-    gpio_pullup_dis(PORT);
+    gpio_pullup_en(PORT);
     gpio_set_intr_type(PORT,GPIO_INTR_NEGEDGE);
     gpio_install_isr_service(0);
+    //gpio_set_level(CONFIG_GPIO_NUMBER, 1);
 }
 
 static void IRAM_ATTR interruptFunction(void *parameters)

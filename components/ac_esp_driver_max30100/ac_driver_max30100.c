@@ -31,7 +31,9 @@ static char get_temperature(void *parameters)
     readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
     printf(": %x\n", current);
     writeRegister( I2C_PORT, MODE_CONFIGURATION, (current | (1<<3)) );
-    printf(": %x\n", (current | (1<<3)));
+    
+    readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
+    printf(": %x\n", current);
     vTaskDelay(pdMS_TO_TICKS(1000));
     
     int8_t temp;
@@ -39,6 +41,7 @@ static char get_temperature(void *parameters)
 
     float temp_fraction;
     readRegister( I2C_PORT, TEMP_FRACTION, (uint8_t*)&temp_fraction, 1);
+
     temp_fraction *= 0.0625;
     printf("Temperatura = %f\n", (float)temp+temp_fraction);
     return 1;
@@ -81,11 +84,6 @@ static void initMax30100(void)
 {
     uint8_t current;
 
-    //Teste com a temperatura ------
-    readRegister( I2C_PORT, INTERRUPT_ENABLE, &current, 1 );
-    writeRegister( I2C_PORT, INTERRUPT_ENABLE, current | (0<<6) );
-    //------------------------------
-
     // Set mode ------------
     readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
     writeRegister( I2C_PORT, MODE_CONFIGURATION, (current & 0xF8) | HR_MODE );
@@ -109,6 +107,11 @@ static void initMax30100(void)
     readRegister( I2C_PORT, SPO2_CONFIGURATION, &current, 1);
     writeRegister( I2C_PORT, SPO2_CONFIGURATION, current | (1<<6) );
     // ---------------------
+
+    //Teste com a temperatura ------
+    //readRegister( I2C_PORT, INTERRUPT_ENABLE, &current, 1 );
+    //writeRegister( I2C_PORT, INTERRUPT_ENABLE, current | (1<<6) );
+    //------------------------------
 }
 
 static void readRegister( i2c_port_t i2c_port, uint8_t address, uint8_t* reg, uint8_t size )
