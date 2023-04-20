@@ -12,6 +12,8 @@ static ac_driver_function_pointer_t max30100_functions[END_MAX30100];
 
 static char initialize_max30100_driver(void *parameters);
 static char get_raw_data(void *parameters);
+static char start_temperature_reading(void *parameters);
+static char is_temperature_ready(void *parametrs);
 static char get_temperature(void *parameters);
 
 static void initI2C(void);
@@ -25,25 +27,31 @@ static char get_raw_data(void *parameters)
     return 1;
 }
 
-static char get_temperature(void *parameters)
+static char start_temperature_reading(void *parameters)
 {
     uint8_t current;
     readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
-    printf(": %x\n", current);
-    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current | (1<<3)) );
-    
+    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current | (1<<3)) ); 
+    return 1;
+}
+
+static char is_temperature_ready(void *parameters)
+{
+    uint8_t current;
+    uint8_t *ready = (uint8_t*) parameters;
     readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
-    printf(": %x\n", current);
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    
+    *ready = (current & (1<<3));
+    return 1;
+}
+
+static char get_temperature(void *parameters)
+{
     int8_t temp;
+    int8_t temp_fraction;
     readRegister(I2C_PORT, TEMP_INTEGER, (uint8_t*)&temp, 1);
-
-    float temp_fraction;
     readRegister( I2C_PORT, TEMP_FRACTION, (uint8_t*)&temp_fraction, 1);
-
-    temp_fraction *= 0.0625;
-    printf("Temperatura = %f\n", (float)temp+temp_fraction);
+    printf("Temperatura = %0.2f\n", (float)temp+(float)(temp_fraction*0.0625));
+     printf("I: %X, F: %X\n", (uint8_t)temp, (uint8_t)temp_fraction);
     return 1;
 }
 
@@ -61,6 +69,8 @@ ac_driver_t* ac_get_max30100_driver(void)
   max30100_driver.driver_initialization = initialize_max30100_driver;
   max30100_functions[GET_RAW_DATA] = get_raw_data;
   max30100_functions[GET_TEMPERATURE_MAX30100] = get_temperature;
+  max30100_functions[START_TEMPERTURA_READING] = start_temperature_reading;
+  max30100_functions[IS_TEMPERATURE_READY] = is_temperature_ready;
   max30100_driver.driver_function = &max30100_functions[0]; //Estudar.
   ESP_LOGI(TAG, "Get driver");
   return &max30100_driver;
@@ -86,7 +96,7 @@ static void initMax30100(void)
 
     // Set mode ------------
     readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
-    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current & 0xF8) | HR_MODE );
+    writeRegister( I2C_PORT, MODE_CONFIGURATION, (current & 0xF8) | UNUSED_MODE );
     // ---------------------
 
     // Set sampling rate ---
@@ -108,10 +118,6 @@ static void initMax30100(void)
     writeRegister( I2C_PORT, SPO2_CONFIGURATION, current | (1<<6) );
     // ---------------------
 
-    //Teste com a temperatura ------
-    //readRegister( I2C_PORT, INTERRUPT_ENABLE, &current, 1 );
-    //writeRegister( I2C_PORT, INTERRUPT_ENABLE, current | (1<<6) );
-    //------------------------------
 }
 
 static void readRegister( i2c_port_t i2c_port, uint8_t address, uint8_t* reg, uint8_t size )

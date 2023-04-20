@@ -15,6 +15,8 @@ typedef enum
 {
     GET_RAW_DATA,
     GET_TEMPERATURE_MAX30100,
+    START_TEMPERTURA_READING,
+    IS_TEMPERATURE_READY,
     END_MAX30100
 } ac_max30100_driver_functions_list_t;
 
