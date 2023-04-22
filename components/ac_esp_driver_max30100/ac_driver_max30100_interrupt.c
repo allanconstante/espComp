@@ -44,9 +44,9 @@ static char initialize_max30100_driver_interrupt(void *parameters)
 ac_driver_t* ac_get_max30100_driver_interrupt(void)
 {
   max30100_driver_interrupt.driver_initialization = initialize_max30100_driver_interrupt;
-  max30100_functions_interrupt[SET_MAX30100_INTERRUPT] = set_interrupt_function;
-  max30100_functions_interrupt[ENABLE_MAX30100_INTERRUPT] = enable_interrupt;
-  max30100_functions_interrupt[DISABLE_MAX30100_INTERRUPT] = disable_interrupt;
+  max30100_functions_interrupt[MAX30100_SET_INTERRUPT] = set_interrupt_function;
+  max30100_functions_interrupt[MAX30100_ENABLE_INTERRUPT] = enable_interrupt;
+  max30100_functions_interrupt[MAX30100_DISABLE_INTERRUPT] = disable_interrupt;
   max30100_driver_interrupt.driver_function = &max30100_functions_interrupt[0]; //Estudar.
   ESP_LOGI(TAG, "Get driver");
   return &max30100_driver_interrupt;

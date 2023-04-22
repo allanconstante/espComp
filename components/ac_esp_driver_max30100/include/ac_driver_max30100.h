@@ -4,7 +4,7 @@
 #include "driver/i2c.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
-#include "ac_driver_max30100_aux.h"
+#include "ac_driver_max30100_registers.h"
 #include "../../ac_driver_controller/include/ac_driver_types.h"
 
 #ifdef __cplusplus
@@ -13,10 +13,10 @@ extern "C" {
 
 typedef enum
 {
-    GET_RAW_DATA,
-    GET_TEMPERATURE_MAX30100,
-    START_TEMPERTURA_READING,
-    IS_TEMPERATURE_READY,
+    MAX30100_GET_RAW_DATA,
+    MAX30100_GET_TEMPERATURE,
+    MAX30100_START_TEMPERTURA_READING,
+    MAX30100_IS_TEMPERATURE_READY,
     END_MAX30100
 } ac_max30100_driver_functions_list_t;
 

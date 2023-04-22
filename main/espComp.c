@@ -2,8 +2,8 @@
 
 uint8_t state = 0;
 uint8_t teste = 0;
-
-static void funcTeste(void *args);
+float temperatura = 0;
+uint8_t raw[4];
 
 void app_main(void)
 {
@@ -15,14 +15,16 @@ void app_main(void)
     while (1) {
 
         if(state == 0){
-            ac_call_driver(DRIVER_MAX30100, START_TEMPERTURA_READING, NULL);
+            ac_call_driver(DRIVER_MAX30100, MAX30100_START_TEMPERTURA_READING, NULL);
             state = 1;
         } else if(state == 1){
-            ac_call_driver(DRIVER_MAX30100, IS_TEMPERATURE_READY, &teste);
-            //vTaskDelay(pdMS_TO_TICKS(100));
+            ac_call_driver(DRIVER_MAX30100, MAX30100_IS_TEMPERATURE_READY, &teste);
             if(!teste) {
-                ac_call_driver(DRIVER_MAX30100, GET_TEMPERATURE_MAX30100, NULL);
+                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_TEMPERATURE, &temperatura);
                 state = 0;
+                printf("%0.2f\n", temperatura);
+                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_RAW_DATA, raw);
+                //printf("Data raw: 0x%02x%02x%02x%02x\n", raw[0], raw[1], raw[2], raw[3]);
                 vTaskDelay(pdMS_TO_TICKS(5000));
             }
         }
