@@ -4,18 +4,33 @@
 extern "C" {
 #endif
 
-#define DEVICE_ADDRESS            0x57
-#define INTERRUPT_STATUS          0x00
-#define INTERRUPT_ENABLE          0x01
-#define FIFO_WRITE_POINTER        0x02
-#define OVER_FLOW_COUNTER         0x03
-#define FIFO_READ_POINTER         0x04
-#define FIFO_DATA_REGISTER        0x05
-#define MODE_CONFIGURATION        0x06
-#define SPO2_CONFIGURATION        0x07
-#define LED_CONFIGURATION         0x09
-#define TEMP_INTEGER              0x16
-#define TEMP_FRACTION             0x17
+//ENDEREÇOS
+#define DEVICE_ADDRESS              0x57
+#define INTERRUPT_STATUS            0x00
+#define INTERRUPT_ENABLE            0x01
+#define FIFO_WRITE_POINTER          0x02
+#define OVER_FLOW_COUNTER           0x03
+#define FIFO_READ_POINTER           0x04
+#define FIFO_DATA_REGISTER          0x05
+#define MODE_CONFIGURATION          0x06
+#define SPO2_CONFIGURATION          0x07
+#define LED_CONFIGURATION           0x09
+#define TEMP_INTEGER                0x16
+#define TEMP_FRACTION               0x17
+#define REVISION_ID                 0xFE
+#define PART_ID                     0xFF
+
+//INTERRUPÇÕES
+#define ENABLE_INTERRUPT_A_FULL     (1<<7)
+#define ENABLE_INTERRUPT_TEMP_RDY   (1<<6)
+#define ENABLE_INTERRUPT_HR_RDY     (1<<5)
+#define ENABLE_INTERRUPT_SPO2_RDY   (1<<4)
+
+//OPERAÇÕES COM BIT
+#define STANDBY                     (1<<7)
+#define RESET                       (1<<6)
+#define READ_TEMPERATURE            (1<<3)
+#define ENABLE_SPO2_HI              (1<<6)
 
 typedef enum
 {

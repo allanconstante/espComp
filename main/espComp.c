@@ -4,6 +4,9 @@ uint8_t state = 0;
 uint8_t teste = 0;
 float temperatura = 0;
 uint8_t raw[4];
+uint8_t fifo_write = 0;
+uint8_t fifo_read = 0;
+uint8_t over_flow = 0;
 
 void app_main(void)
 {
@@ -22,9 +25,15 @@ void app_main(void)
             if(!teste) {
                 ac_call_driver(DRIVER_MAX30100, MAX30100_GET_TEMPERATURE, &temperatura);
                 state = 0;
-                printf("%0.2f\n", temperatura);
+                //printf("%0.2f\n", temperatura);
                 ac_call_driver(DRIVER_MAX30100, MAX30100_GET_RAW_DATA, raw);
-                //printf("Data raw: 0x%02x%02x%02x%02x\n", raw[0], raw[1], raw[2], raw[3]);
+                printf("Data raw: 0x%02x%02x%02x%02x\n", raw[0], raw[1], raw[2], raw[3]);
+                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_WRITE_POINTER, &fifo_write);
+                printf("FIFO Write: 0x%02x\n", fifo_write);
+                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_READ_POINTER, &fifo_read);
+                printf("FIFO Read: 0x%02x\n", fifo_read);
+                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_OVER_FLOW_COUNTER, &over_flow);
+                printf("Over flow: 0x%02x\n", over_flow);
                 vTaskDelay(pdMS_TO_TICKS(5000));
             }
         }
