@@ -1,50 +1,63 @@
 #include "espComp.h"
 
-uint8_t state = 0;
-uint8_t teste = 0;
-float temperatura = 0;
-uint8_t raw[4];
 uint8_t fifo_write = 0;
 uint8_t fifo_read = 0;
 uint8_t over_flow = 0;
 
+float temperatura = 0;
+
+int size = 0;
+
+static void plotSensor(void);
+
 void app_main(void)
 {
-    //ac_initialize_driver(DRIVER_DHT);
-    //ac_initialize_driver(DRIVER_WIFI);
-    //ac_call_driver(DRIVER_WIFI, CONNECT, NULL);
     ac_initialize_driver(DRIVER_MAX30100);
     ac_call_driver(DRIVER_MAX30100, MAX30100_CLEAR, NULL);
-
     while (1) {
-
-        if(state == 0){
-            ac_call_driver(DRIVER_MAX30100, MAX30100_START_TEMPERTURA_READING, NULL);
-            state = 1;
-        } else if(state == 1){
-            ac_call_driver(DRIVER_MAX30100, MAX30100_IS_TEMPERATURE_READY, &teste);
-            if(!teste) {
-                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_TEMPERATURE, &temperatura);
-                state = 0;
-                //printf("%0.2f\n", temperatura);
-                //ac_call_driver(DRIVER_MAX30100, MAX30100_GET_RAW_DATA, raw);
-                //printf("Data raw: 0x%02x%02x%02x%02x\n", raw[0], raw[1], raw[2], raw[3]);
-                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_WRITE_POINTER, &fifo_write);
-                printf("FIFO Write: 0x%02x\n", fifo_write);
-                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_READ_POINTER, &fifo_read);
-                printf("FIFO Read: 0x%02x\n", fifo_read);
-                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_OVER_FLOW_COUNTER, &over_flow);
-                printf("Over flow: 0x%02x\n", over_flow);
-                vTaskDelay(pdMS_TO_TICKS(5000));
-            }
+        ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_WRITE_POINTER, &fifo_write);
+        ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_READ_POINTER, &fifo_read);
+        size = (int)fifo_write - (int)fifo_read;
+        if ( size > 0 ) plotSensor();
+        else if ( size < 0 ) {
+            size = 16 - (int)fifo_read;
+            plotSensor();
         }
-        /*   
-        vTaskDelay(pdMS_TO_TICKS(5000));
-        ac_call_driver(DRIVER_DHT, GET_TEMPERATURE, (void*) &temp);
-        printf("Temperatura:    %.2f°C\r\n", temp);
-        vTaskDelay(pdMS_TO_TICKS(5000));
-        ac_call_driver(DRIVER_DHT, GET_HUMIDITY, (void*) &umd);
-        printf("Umidade:        %.0f%%\r\n", umd);
-        */
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+}
+
+static void plotSensor(void)
+{
+    static float prev_w_ir = 0;
+    static float prev_w_red = 0;
+
+    float w = 0;
+    float alpha = 0.95;
+    float result_ir = 0;
+    float result_red = 0;
+
+    uint8_t raw[4];
+
+    uint16_t data_ir[size];
+    uint16_t data_red[size];
+
+    for( int i = 0; i < size; ++i ){
+        ac_call_driver(DRIVER_MAX30100, MAX30100_GET_RAW_DATA, raw);
+        data_ir[i] = ( (uint16_t)raw[0]<<8 ) | raw[1];
+        data_red[i] = ( (uint16_t)raw[2]<<8 ) | raw[3];
+    }
+    
+    for( int i = 0; i < size; ++i ){
+        
+        w = (float)data_ir[i] + alpha * prev_w_ir;
+        result_ir = w - prev_w_ir;
+        prev_w_ir = w;
+
+        w = (float)data_red[i] + alpha * prev_w_red;
+        result_red = w - prev_w_red;
+        prev_w_red = w;
+
+        printf("%f,%f\n", result_ir, result_red);
     }
 }

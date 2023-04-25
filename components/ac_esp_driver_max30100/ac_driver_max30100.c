@@ -225,8 +225,8 @@ static void initMax30100(void)
     setMode(SPO2_HR_MODE);
     setSampling(SAMPLING_50HZ);
     setPulseWidth(PULSE_WIDTH_1600US_ADC_16);
-    setLedCurrentRed(LED_CURRENT_27_1MA);
-    setLedCurrentIr(LED_CURRENT_50MA);
+    setLedCurrentRed(LED_CURRENT_11MA);
+    setLedCurrentIr(LED_CURRENT_11MA);
     setHighRes(1);
 }
 
