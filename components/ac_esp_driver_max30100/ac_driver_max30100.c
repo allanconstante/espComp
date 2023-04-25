@@ -146,12 +146,30 @@ static char set_high_res(void *parameters)
 
 static char standby(void *parameters)
 {
+    uint8_t data;
+    uint8_t *enable = (uint8_t*) parameters;
+    readRegister( I2C_PORT, MODE_CONFIGURATION, &data, 1);
+    if(enable == 1) writeRegister( I2C_PORT, MODE_CONFIGURATION, data | STANDBY );
+    else if(enable == 0) writeRegister( I2C_PORT, MODE_CONFIGURATION, data & (~STANDBY) );
     return 1;
 }
 
 static char reset(void *parameters)
 {
+    uint8_t data;
+    uint8_t *enable = (uint8_t*) parameters;
+    readRegister( I2C_PORT, MODE_CONFIGURATION, &data, 1);
+    if(enable == 1) writeRegister( I2C_PORT, MODE_CONFIGURATION, data | RESET );
+    else if(enable == 0) writeRegister( I2C_PORT, MODE_CONFIGURATION, data & (~RESET) );
     return 1;
+}
+
+static char clear(void *parameters)
+{
+    writeRegister( I2C_PORT, FIFO_WRITE_POINTER, 0x00 ); 
+    writeRegister( I2C_PORT, FIFO_READ_POINTER, 0x00 ); 
+    writeRegister( I2C_PORT, OVER_FLOW_COUNTER, 0x00 );
+    return 1; 
 }
 
 static char initialize_max30100_driver(void *parameters)
@@ -180,6 +198,9 @@ ac_driver_t* ac_get_max30100_driver(void)
   max30100_functions[MAX30100_SET_LED_CURRENT_RED] = set_led_current_red;
   max30100_functions[MAX30100_SET_LED_CURRENT_IR] = set_led_current_ir;
   max30100_functions[MAX30100_SET_HIGH_RES] = set_high_res;
+  max30100_functions[MAX30100_STANDBY] = standby;
+  max30100_functions[MAX30100_RESET] = reset;
+  max30100_functions[MAX30100_CLEAR] = clear;
   max30100_driver.driver_function = &max30100_functions[0]; //Estudar.
   ESP_LOGI(TAG, "Get driver");
   return &max30100_driver;
@@ -273,9 +294,8 @@ static void setLedCurrentIr(int current_ir)
 
 static void setHighRes(uint8_t enable)
 {
-    //Rever a lógica de reset.
     uint8_t data;
     readRegister( I2C_PORT, SPO2_CONFIGURATION, &data, 1);
     if(enable == 1) writeRegister( I2C_PORT, SPO2_CONFIGURATION, data | ENABLE_SPO2_HI );
-    else if(enable == 0) writeRegister( I2C_PORT, SPO2_CONFIGURATION, data | (0<<6) );
+    else if(enable == 0) writeRegister( I2C_PORT, SPO2_CONFIGURATION, data & (~ENABLE_SPO2_HI) );
 }

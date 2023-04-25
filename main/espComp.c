@@ -14,6 +14,7 @@ void app_main(void)
     //ac_initialize_driver(DRIVER_WIFI);
     //ac_call_driver(DRIVER_WIFI, CONNECT, NULL);
     ac_initialize_driver(DRIVER_MAX30100);
+    ac_call_driver(DRIVER_MAX30100, MAX30100_CLEAR, NULL);
 
     while (1) {
 
@@ -26,8 +27,8 @@ void app_main(void)
                 ac_call_driver(DRIVER_MAX30100, MAX30100_GET_TEMPERATURE, &temperatura);
                 state = 0;
                 //printf("%0.2f\n", temperatura);
-                ac_call_driver(DRIVER_MAX30100, MAX30100_GET_RAW_DATA, raw);
-                printf("Data raw: 0x%02x%02x%02x%02x\n", raw[0], raw[1], raw[2], raw[3]);
+                //ac_call_driver(DRIVER_MAX30100, MAX30100_GET_RAW_DATA, raw);
+                //printf("Data raw: 0x%02x%02x%02x%02x\n", raw[0], raw[1], raw[2], raw[3]);
                 ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_WRITE_POINTER, &fifo_write);
                 printf("FIFO Write: 0x%02x\n", fifo_write);
                 ac_call_driver(DRIVER_MAX30100, MAX30100_GET_FIFO_READ_POINTER, &fifo_read);
