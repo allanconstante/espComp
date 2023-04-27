@@ -18,7 +18,7 @@ static char get_temperature(void *parameters);
 static char get_fifo_write_pointer(void *parameters);
 static char get_over_flow_counter(void *parameters);
 static char get_fifo_read_pointer(void *parameters);
-static void get_interrupt_status(void *parameters);
+static char get_interrupt_status(void *parameters);
 static char set_mode(void *parameters);
 static char set_sampling(void *parameters);
 static char set_pulse_width(void *parameters);
@@ -37,7 +37,7 @@ static void setSampling(int sampling);
 static void setPulseWidth(int pulse);
 static void setLedCurrentRed(int current_red);
 static void setLedCurrentIr(int current_ir);
-static void setHighRes(uint8_t enable);
+static void setHighRes(int enable);
 
 static char get_raw_data(void *parameters)
 {
@@ -95,7 +95,7 @@ static char get_fifo_read_pointer(void *parameters)
     return 1;
 }
 
-static void get_interrupt_status(void *parameters)
+static char get_interrupt_status(void *parameters)
 {
     uint8_t *data = (uint8_t*) parameters;
     readRegister( I2C_PORT, INTERRUPT_STATUS, data, 1 );
@@ -139,7 +139,7 @@ static char set_led_current_ir(void *parameters)
 
 static char set_high_res(void *parameters)
 {
-    uint8_t *enable = (uint8_t*) parameters;
+    int *enable = (int*) parameters;
     setHighRes(*enable);
     return 1;
 }
@@ -147,20 +147,20 @@ static char set_high_res(void *parameters)
 static char standby(void *parameters)
 {
     uint8_t data;
-    uint8_t *enable = (uint8_t*) parameters;
+    int *enable = (int*) parameters;
     readRegister( I2C_PORT, MODE_CONFIGURATION, &data, 1);
-    if(enable == 1) writeRegister( I2C_PORT, MODE_CONFIGURATION, data | STANDBY );
-    else if(enable == 0) writeRegister( I2C_PORT, MODE_CONFIGURATION, data & (~STANDBY) );
+    if(*enable == 1) writeRegister( I2C_PORT, MODE_CONFIGURATION, data | STANDBY );
+    else if(*enable == 0) writeRegister( I2C_PORT, MODE_CONFIGURATION, data & (~STANDBY) );
     return 1;
 }
 
 static char reset(void *parameters)
 {
     uint8_t data;
-    uint8_t *enable = (uint8_t*) parameters;
+    int *enable = (int*) parameters;
     readRegister( I2C_PORT, MODE_CONFIGURATION, &data, 1);
-    if(enable == 1) writeRegister( I2C_PORT, MODE_CONFIGURATION, data | RESET );
-    else if(enable == 0) writeRegister( I2C_PORT, MODE_CONFIGURATION, data & (~RESET) );
+    if(*enable == 1) writeRegister( I2C_PORT, MODE_CONFIGURATION, data | RESET );
+    else if(*enable == 0) writeRegister( I2C_PORT, MODE_CONFIGURATION, data & (~RESET) );
     return 1;
 }
 
@@ -225,8 +225,8 @@ static void initMax30100(void)
     setMode(SPO2_HR_MODE);
     setSampling(SAMPLING_50HZ);
     setPulseWidth(PULSE_WIDTH_1600US_ADC_16);
-    setLedCurrentRed(LED_CURRENT_11MA);
-    setLedCurrentIr(LED_CURRENT_11MA);
+    setLedCurrentRed(LED_CURRENT_14_2MA);
+    setLedCurrentIr(LED_CURRENT_14_2MA);
     setHighRes(1);
 }
 
@@ -292,7 +292,7 @@ static void setLedCurrentIr(int current_ir)
     writeRegister( I2C_PORT, LED_CONFIGURATION, (data & 0xF0) | current_ir );
 }
 
-static void setHighRes(uint8_t enable)
+static void setHighRes(int enable)
 {
     uint8_t data;
     readRegister( I2C_PORT, SPO2_CONFIGURATION, &data, 1);
