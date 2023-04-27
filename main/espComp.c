@@ -5,9 +5,6 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
-struct tm data;
-time_t tt;
-
 xQueueHandle raw_ir_data;
 xQueueHandle raw_red_data;
 xQueueHandle ir_data;
@@ -100,7 +97,6 @@ static void filter_signal( void *parameters )
 
 static void motus ( void *parameters )
 {
-
     static uint8_t state = 0;
     static uint8_t state_cont = 0;
     static uint8_t num_pulso = 0;
@@ -108,9 +104,10 @@ static void motus ( void *parameters )
     float ir = 0;
     float red = 0;
     float pulso = 0;
-    
+
+    int time = 0;
     int seconds = get_seconds();
-    int minutes = get_minutes();
+    int diff = 0;
 
     while ( 1 ) {
         
@@ -128,20 +125,24 @@ static void motus ( void *parameters )
             pulso = 0;
         }
 
+        time = get_seconds() - seconds;
+        if ( time < 0 ) {
+            time = 60 - seconds;
+            seconds = 0;
+            diff = time;
+        }
+
         if ( state == 0 ) {
             seconds = get_seconds();
             num_pulso = 0;
+            diff = 0;
             state = 1;
-            printf("State = 1");
-        } else if ( (( get_seconds() - seconds ) == 5 ) && ( state == 1 ) ) {
+        } else if ( (time == (5 - diff) ) && ( state == 1 ) ) {
             printf( " %d BPM (%d)\n", ( num_pulso * 12 ), num_pulso );
-            state = 0;
-        } else if ( (( get_seconds() - seconds ) > 10) && ( state == 1 ) ){
-            printf("State = 0");
             state = 0;
         }
 
-        //printf("%f,%f,%f\n", ir, red, pulso);
+        printf("%f,%f,%f\n", ir, red, pulso);
     }
 }
 
@@ -165,15 +166,17 @@ static void moving_average ( float *buffer, float new_data, float *average )
     *average = data;
 }
 
-static int get_seconds( void )
-{
+static int get_seconds( void ) {
+    struct tm data;
+    time_t tt;
     tt = time(NULL);
     data = *gmtime(&tt);
     return data.tm_sec;
 }
 
-static int get_minutes( void )
-{
+static int get_minutes( void ) {
+    struct tm data;
+    time_t tt;
     tt = time(NULL);
     data = *gmtime(&tt);
     return data.tm_min;
