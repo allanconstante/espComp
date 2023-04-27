@@ -101,7 +101,7 @@ static void filter_signal( void *parameters )
 static void motus ( void *parameters )
 {
 
-    static uint8_t state = 1;
+    static uint8_t state = 0;
     static uint8_t state_cont = 0;
     static uint8_t num_pulso = 0;
 
@@ -128,22 +128,20 @@ static void motus ( void *parameters )
             pulso = 0;
         }
 
-        if ( (get_seconds() - seconds) == 5 ) state = 1;
-
-        if ( state == 1 ) {
+        if ( state == 0 ) {
             seconds = get_seconds();
             num_pulso = 0;
-            state = 2;
-        } else if ( (get_seconds() - seconds) == 10 ) {
-            printf( " %d BPM\n", ( num_pulso * 60 ) );
+            state = 1;
+            printf("State = 1");
+        } else if ( (( get_seconds() - seconds ) == 5 ) && ( state == 1 ) ) {
+            printf( " %d BPM (%d)\n", ( num_pulso * 12 ), num_pulso );
             state = 0;
-            seconds = get_seconds();
+        } else if ( (( get_seconds() - seconds ) > 10) && ( state == 1 ) ){
+            printf("State = 0");
+            state = 0;
         }
 
-        printf("%f,%f,%f\n", ir, red, pulso);
-        //printf("Segundos1: %d\n", seconds);
-        //printf("Segundos2: %d\n", get_seconds());
-        //printf("Segundos3: %d\n", (get_seconds() - seconds));
+        //printf("%f,%f,%f\n", ir, red, pulso);
     }
 }
 
