@@ -20,13 +20,11 @@ extern "C" {
 #define REVISION_ID                 0xFE
 #define PART_ID                     0xFF
 
-//INTERRUPÇÕES
 #define ENABLE_INTERRUPT_A_FULL     (1<<7)
 #define ENABLE_INTERRUPT_TEMP_RDY   (1<<6)
 #define ENABLE_INTERRUPT_HR_RDY     (1<<5)
 #define ENABLE_INTERRUPT_SPO2_RDY   (1<<4)
 
-//OPERAÇÕES COM BIT
 #define STANDBY                     (1<<7)
 #define RESET                       (1<<6)
 #define READ_TEMPERATURE            (1<<3)

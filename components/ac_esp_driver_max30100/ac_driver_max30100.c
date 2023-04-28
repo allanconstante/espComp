@@ -1,3 +1,16 @@
+/**
+ * @file ac_driver_max30100.c
+ * @author Allan Appelt Constante (allan@aconstante.com.br)
+ * @brief This driver contains the basic functions for accessing the registers and configuring the MAX30100, integrated
+ *        circuit from Analog Devices. This component is intended to read heartbeats and oximetry.
+ * @version 0.1
+ * @date 2023-04-17
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
+
 #include "ac_driver_max30100.h"
 
 #define I2C_SDA 21
@@ -11,10 +24,47 @@ static ac_driver_t max30100_driver;
 static ac_driver_function_pointer_t max30100_functions[MAX30100_END];
 
 static char initialize_max30100_driver(void *parameters);
+
+/**
+ * @brief Gets the raw data from the FIFO register.
+ * 
+ * @param parameters Vector pointer that will receivfe the data.
+ * @return char 
+ */
 static char get_raw_data(void *parameters);
+
+/**
+ * @brief Starts the temperature reading.
+ * 
+ * @param parameters Does not receive parameters.
+ * @return char 
+ * 
+ * @see is_temperature_ready(void *parameters) and get_temperature(void *parameters).
+ */
 static char start_temperature_reading(void *parameters);
+
+/**
+ * @brief Returns a non-zero value if the conversion started with start_temperature_reading(void *parameters) is 
+ *        complete. Otherwise it returns zero.
+ * 
+ * @param parameters Integer pointer to receive read operation state.
+ * @return char
+ * 
+ * @see start_temperature_reading(void *parameters) and get_temperature(void *parameters).
+ */
 static char is_temperature_ready(void *parametrs);
+
+/**
+ * @brief It gets the temperature read. This function should be called only after the completion of the reading 
+ *        indicated by is_temperature_ready(void *parameters).
+ * 
+ * @param parameters Pointer of the float variable that will receive the temperature reading.
+ * @return char
+ * 
+ * @see start_temperature_reading(void *parameters) and is_temperature_ready(void *parameters).
+ */
 static char get_temperature(void *parameters);
+
 static char get_fifo_write_pointer(void *parameters);
 static char get_over_flow_counter(void *parameters);
 static char get_fifo_read_pointer(void *parameters);
@@ -41,7 +91,7 @@ static void setHighRes(int enable);
 
 static char get_raw_data(void *parameters)
 {
-    uint8_t *raw = (uint8_t*) parameters;
+    uint8_t *raw = (uint8_t*)parameters;
     readRegister(I2C_PORT, FIFO_DATA_REGISTER, raw, 4);
     return 1;
 }
@@ -56,10 +106,10 @@ static char start_temperature_reading(void *parameters)
 
 static char is_temperature_ready(void *parameters)
 {
-    uint8_t current;
-    uint8_t *ready = (uint8_t*) parameters;
-    readRegister( I2C_PORT, MODE_CONFIGURATION, &current, 1 );
-    *ready = (current & (1<<3));
+    uint8_t data;
+    int *ready = (int*)parameters;
+    readRegister(I2C_PORT, MODE_CONFIGURATION, &data, 1);
+    *ready = (data & (1<<3));
     return 1;
 }
 
@@ -67,16 +117,16 @@ static char get_temperature(void *parameters)
 {
     int8_t temp;
     int8_t temp_fraction;
-    float *temperature = (float*) parameters;
+    float *temperature = (float*)parameters;
     readRegister(I2C_PORT, TEMP_INTEGER, (uint8_t*)&temp, 1);
     readRegister( I2C_PORT, TEMP_FRACTION, (uint8_t*)&temp_fraction, 1);
-    *temperature = (float)temp+(float)(temp_fraction*0.0625);
+    *temperature = (float)temp + (float)(temp_fraction * 0.0625);
     return 1;
 }
 
 static char get_fifo_write_pointer(void *parameters)
 {
-    uint8_t *data = (uint8_t*) parameters;
+    uint8_t *data = (uint8_t*)parameters;
     readRegister( I2C_PORT, FIFO_WRITE_POINTER, data, 1 );
     return 1;
 }
