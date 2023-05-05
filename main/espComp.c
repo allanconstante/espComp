@@ -87,17 +87,15 @@ static void filter_signal( void *parameters )
     {
         xQueueReceive( raw_ir_data, &ir_raw, 5000 / portTICK_PERIOD_MS );
         xQueueReceive( raw_red_data, &red_raw, 5000 / portTICK_PERIOD_MS );
-
         //printf("%u,%u\n", ir_raw, red_raw);
-
         remove_dc_level(ir_raw, &prev_ir, &ir);                         // Remove o nivel DC dos dados do LED IR
         remove_dc_level(red_raw, &prev_red, &red);                      // Remove o nivel DC dos dados do LED Red
         moving_average(buffer_ir, ir, &ir);                             // Faz a média movel dos dados do LED IR
         moving_average(buffer_red, red, &red);                          // Faz a média movel dos dados do LED Red
-
         xQueueSend( ir_data, &ir, 1000 / portTICK_PERIOD_MS );
         xQueueSend( red_data, &red, 1000 / portTICK_PERIOD_MS );
     }
+    
     
 }
 
@@ -106,15 +104,13 @@ static void motus ( void *parameters )
     static uint8_t state = 0;
     static uint8_t state_cont = 0;
     static uint8_t num_pulso = 0;
-    static uint8_t flag = 0;
 
     float ir = 0;
     float red = 0;
     float pulso = 0;
-    float freq = 0;
 
     int time = 0;
-    int seconds = get_seconds();
+    int minutes = get_minutes();
     int diff = 0;
 
     while ( 1 ) {
@@ -128,46 +124,25 @@ static void motus ( void *parameters )
             state_cont = 3;
             pulso = 60;
             ++num_pulso;
-            if ( flag == 0 ) {
-                xStartTime = xTaskGetTickCount();
-                flag = 1;        
-            } else if ( flag == 1 ) {
-                xEndTime = xTaskGetTickCount();
-                flag = 3;
-            }
         } else if ( state_cont == 3 ) {
             state_cont = 0;
             pulso = 0;
-            if ( flag == 3 ) {
-                freq = freq + ( (float)(xEndTime - xStartTime) * portTICK_PERIOD_MS )/10;
-                if ( num_pulso == 10 ) flag = 4;
-                else flag = 0;
-            }
         }
 
-
-        time = get_seconds() - seconds;
+        time = get_minutes() - minutes;
         if ( time < 0 ) {
-            time = 60 - seconds;
-            seconds = 0;
+            time = 60 - minutes;
+            minutes = 0;
             diff = time;
         }
 
         if ( state == 0 ) {
-            seconds = get_seconds();
-            //num_pulso = 0;
+            minutes = get_minutes();
+            num_pulso = 0;
             diff = 0;
             state = 1;
-        } else if ( (time == (5 - diff) ) && ( state == 1 ) ) {
-            if ( flag == 4 ) {
-                printf( "%.0f BPM\n", ( ( 1/( freq/1000 ) ) * 60 ) );
-                flag = 0;
-                freq = 0;
-                num_pulso = 0;
-                pulso = 500;
-            }
-
-            //printf( " %d BPM (%d)\n", ( num_pulso * 12 ), num_pulso );
+        } else if ( (time == (1 - diff) ) && ( state == 1 ) ) {
+            printf( " %d BPM\n", num_pulso );
             state = 0;
         }
         printf("%f,%f,%f\n", ir, red, pulso);
@@ -203,14 +178,6 @@ static int get_seconds( void ) {
 }
 
 static int get_minutes( void ) {
-    struct tm data;
-    time_t tt;
-    tt = time(NULL);
-    data = *gmtime(&tt);
-    return data.tm_min;
-}
-
-static int get_millis( void ) {
     struct tm data;
     time_t tt;
     tt = time(NULL);
